@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'signup.dart';
-import 'user/googlesignin.dart';
-import 'user/forgot_password.dart';
+// import 'user/googlesignin.dart';
+// import 'user/forgot_password.dart';
 import 'user/dashboardpage.dart';
 import 'auth_service.dart';
-import 'admin/dashboard_admin.dart';
+// import 'admin/dashboard_admin.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -112,24 +112,24 @@ class _SignInPageState extends State<SignInPage> {
                 ),
               ),
 
-              // Forgot Password
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ForgotPasswordPage(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    'Forgot Password?',
-                    style: TextStyle(color: Colors.lightBlue, fontSize: 14),
-                  ),
-                ),
-              ),
+              // Forgot Password (Dihapus jika tidak digunakan)
+              // Align(
+              //   alignment: Alignment.centerRight,
+              //   child: GestureDetector(
+              //     onTap: () {
+              //       Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //           builder: (context) => const ForgotPasswordPage(),
+              //         ),
+              //       );
+              //     },
+              //     child: const Text(
+              //       'Forgot Password?',
+              //       style: TextStyle(color: Colors.lightBlue, fontSize: 14),
+              //     ),
+              //   ),
+              // ),
 
               const SizedBox(height: 24),
 
@@ -141,31 +141,31 @@ class _SignInPageState extends State<SignInPage> {
 
                   if (email.isEmpty || password.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Email dan password wajib diisi!'),
                       ),
                     );
                     return;
                   }
 
-                  // cek jika akun adalah admin
-                  if (email == 'mlnnrhsn@gmail.com' && password == 'nugasyuksukses') {
-                      Navigator.pushReplacement(context, 
-                      MaterialPageRoute(builder: (context) => const AdminDashboardPage()) 
-                      );
-                      return;
-                  }
+                  // Cek jika akun adalah admin (Dihapus jika tidak ada peran admin)
+                  // if (email == 'mlnnrhsn@gmail.com' && password == 'nugasyuksukses') {
+                  //     Navigator.pushReplacement(context,
+                  //     MaterialPageRoute(builder: (context) => const AdminDashboardPage())
+                  //     );
+                  //     return;
+                  // }
 
                   final success = await AuthService.signIn(email, password);
                   if (success) {
                     // Jika login berhasil, arahkan ke Dashboard
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                      MaterialPageRoute(builder: (context) => const DashboardPage()),
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Email atau password salah!')),
+                      const SnackBar(content: Text('Email atau password salah!')),
                     );
                   }
                 },
@@ -205,34 +205,35 @@ class _SignInPageState extends State<SignInPage> {
 
               const SizedBox(height: 24),
 
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GoogleSignInPage(),
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  side: const BorderSide(color: Color(0xFF94A3B8)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset('images/google.png', height: 24),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Google',
-                      style: TextStyle(fontSize: 16, color: Colors.black87),
-                    ),
-                  ],
-                ),
-              ),
+              // Google Sign In Button (Dihapus jika tidak digunakan)
+              // OutlinedButton(
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => const GoogleSignInPage(),
+              //       ),
+              //     );
+              //   },
+              //   style: OutlinedButton.styleFrom(
+              //     minimumSize: const Size(double.infinity, 56),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(16),
+              //     ),
+              //     side: const BorderSide(color: Color(0xFF94A3B8)),
+              //   ),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       Image.asset('images/google.png', height: 24),
+              //       const SizedBox(width: 12),
+              //       const Text(
+              //         'Google',
+              //         style: TextStyle(fontSize: 16, color: Colors.black87),
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
               const Spacer(),
 
@@ -248,9 +249,9 @@ class _SignInPageState extends State<SignInPage> {
                     );
                   },
                   child: RichText(
-                    text: TextSpan(
+                    text: const TextSpan(
                       text: "Don't have an account? ",
-                      style: const TextStyle(color: Color(0xFF94A3B8)),
+                      style: TextStyle(color: Color(0xFF94A3B8)),
                       children: [
                         TextSpan(
                           text: 'Sign Up',

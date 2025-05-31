@@ -2,27 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'schedule_provider.dart';
 import 'category_provider.dart';
-// import '../models/schedule.dart';
-// import '../models/category.dart';
 
-class CreateSchedulePage extends StatefulWidget {
-  const CreateSchedulePage({super.key});
+class UpdateSchedulePage extends StatefulWidget {
+  final Map<String, dynamic> scheduleData;
+
+  const UpdateSchedulePage({super.key, required this.scheduleData});
 
   @override
-  _CreateSchedulePageState createState() => _CreateSchedulePageState();
+  _UpdateSchedulePageState createState() => _UpdateSchedulePageState();
 }
 
-class _CreateSchedulePageState extends State<CreateSchedulePage> {
-  String? taskType;
+class _UpdateSchedulePageState extends State<UpdateSchedulePage> {
+  int? selectedCategoryId;
   String? importance;
   DateTime? startDate;
   DateTime? endDate;
-  DateTime? reminderDate; // Ini akan digunakan untuk before_due_schedule
-  int? selectedCategoryId;
+  DateTime? reminderDate;
 
   final TextEditingController titleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
   final TextEditingController urlController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -30,13 +29,49 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
   void initState() {
     super.initState();
     // Load categories saat halaman dibuka
-    Future.microtask(
-      () =>
-          Provider.of<CategoryProvider>(
-            context,
-            listen: false,
-          ).loadCategories(),
-    );
+    // Future.microtask(
+    //   () =>
+    //       Provider.of<CategoryProvider>(
+    //         context,
+    //         listen: false,
+    //       ).loadCategories(),
+    // );
+    Future.microtask(() async {
+      await Provider.of<CategoryProvider>(
+        context,
+        listen: false,
+      ).loadCategories();
+      final data = widget.scheduleData;
+      // Jika category_id null, cari berdasarkan nama kategori
+      if (selectedCategoryId == null && data['categoryName'] != null) {
+        final categories =
+            Provider.of<CategoryProvider>(context, listen: false).categories;
+        final found = categories.firstWhere(
+          (cat) => cat.name == data['categoryName'],
+          orElse: () => categories.first,
+        );
+        setState(() {
+          selectedCategoryId = found.id;
+        });
+      }
+    });
+
+    final data = widget.scheduleData;
+    titleController.text = data['title'] ?? '';
+    descriptionController.text = data['description'] ?? '';
+    urlController.text = data['url'] ?? '';
+
+    startDate =
+        data['startDate'] != null ? DateTime.tryParse(data['startDate']) : null;
+    endDate =
+        data['dueDate'] != null ? DateTime.tryParse(data['dueDate']) : null;
+    reminderDate =
+        data['reminder'] != null ? DateTime.tryParse(data['reminder']) : null;
+
+    // Use category_id passed from view_schedule.dart
+    selectedCategoryId = data['category_id'] as int?;
+
+    importance = data['priority'];
   }
 
   @override
@@ -45,10 +80,15 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Schedule', style: TextStyle(fontWeight: FontWeight.bold,)),
+        leading: const BackButton(),
+        title: const Text(
+          'Update Schedule',
+          style: TextStyle(color: Color(0xFF0A2472)),
+        ),
         backgroundColor: const Color(0xFFB3E0FB), // Ubah warna header
-        foregroundColor: Color(0xFF0A2472),
         elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -68,7 +108,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                   filled: true,
                   fillColor: const Color(0xFFB3E0FB),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20), // Lebih melengkung
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   hintText: 'Enter schedule title',
                   prefixIcon: const Icon(Icons.title),
@@ -284,75 +324,81 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                 keyboardType: TextInputType.url,
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    if (startDate == null ||
-                        endDate == null ||
-                        reminderDate == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Please select start, end, and reminder dates',
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-                    if (reminderDate!.isAfter(endDate!)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Reminder date must be before due date!',
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-
-                    final newScheduleData = {
-                      'schedule_name': titleController.text,
-                      'description': descriptionController.text,
-                      'category_id' : selectedCategoryId,
-                      'priority':
-                          importance ??
-                          'not_important', // Default ke 'not_important' jika tidak dipilih
-                      'start_schedule': startDate!.toIso8601String(),
-                      'due_schedule': endDate!.toIso8601String(),
-                      'before_due_schedule': reminderDate!.toIso8601String(),
-                      'url':
-                          urlController.text.isEmpty ? '' : urlController.text,
-                    };
-
-                    try {
-                      await Provider.of<ScheduleProvider>(
-                        context,
-                        listen: false,
-                      ).addSchedule(newScheduleData, context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Schedule created successfully!'),
-                        ),
-                      );
-                      Navigator.pop(context);
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error creating schedule: $e')),
-                      );
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0A2472),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0A2472),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    minimumSize: const Size(double.infinity, 56),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Center(
-                  child: Text(
-                    'Create Schedule',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      if (startDate == null ||
+                          endDate == null ||
+                          reminderDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Please select start, end, and reminder dates',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      if (reminderDate!.isAfter(endDate!)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Reminder date must be before due date!',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      final updatedScheduleData = {
+                        'schedule_name': titleController.text,
+                        'description': descriptionController.text,
+                        'category_id': selectedCategoryId,
+                        'priority': importance ?? 'not_important',
+                        'start_schedule': startDate!.toIso8601String(),
+                        'due_schedule': endDate!.toIso8601String(),
+                        'before_due_schedule': reminderDate!.toIso8601String(),
+                        'url':
+                            urlController.text.isEmpty
+                                ? ''
+                                : urlController.text,
+                      };
+
+                      try {
+                        await Provider.of<ScheduleProvider>(
+                          context,
+                          listen: false,
+                        ).updateSchedule(
+                          widget.scheduleData['id'],
+                          updatedScheduleData,
+                          context,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Schedule updated successfully!'),
+                          ),
+                        );
+                        Navigator.pop(context, true);
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error updating schedule: $e'),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text(
+                    'Update Schedule',
+                    style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),
               ),
@@ -413,8 +459,8 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
   @override
   void dispose() {
     titleController.dispose();
-    descriptionController.dispose();
     urlController.dispose();
+    descriptionController.dispose();
     super.dispose();
   }
 }

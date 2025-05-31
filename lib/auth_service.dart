@@ -1,37 +1,73 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import './services/service.dart';
+import '../models/User.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
-  static const String _keyEmail = 'user_email';
-  static const String _keyPassword = 'user_password';
+  static final _api = ApiService();
 
-  // Simpan user baru
-  static Future<bool> signUp(String email, String password) async {
-    final prefs = await SharedPreferences.getInstance();
-    // Cek jika email sudah terdaftar
-    if (prefs.getString(_keyEmail) == email) return false;
-    await prefs.setString(_keyEmail, email);
-    await prefs.setString(_keyPassword, password);
-    return true;
+  static User? _currentUser;
+
+  static User? get currentUser => _currentUser;
+
+  static Future<bool> loadUserProfile() async {
+    final token = await _api.getToken(); // Periksa apakah token masih ada
+    if (token == null) {
+      _currentUser = null;
+      return false; // Tidak ada token, tidak bisa login
+    }
+
+    try {
+      final userData = await _api.getUserProfile(); // Ambil data user dari API
+      if (userData != null) {
+        _currentUser = User(
+          id: userData['id'] ?? 0, // Sesuaikan dengan field dari UserResource Laravel
+          name: userData['name'] ?? '',
+          email: userData['email'] ?? '',
+          role: userData['role'] ?? 'user', // Sesuaikan
+        );
+        debugPrint('User profile loaded in AuthService: ${_currentUser?.name}');
+        return true;
+      } else {
+        // Token mungkin ada tapi tidak valid lagi, atau API error
+        _currentUser = null;
+        await _api.signOut(); // Hapus token yang tidak valid
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Error loading user profile in AuthService: $e');
+      _currentUser = null;
+      return false;
+    }
   }
 
-  // Login user
-  static Future<bool> signIn(String email, String password) async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedEmail = prefs.getString(_keyEmail);
-    final savedPassword = prefs.getString(_keyPassword);
-    return (email == savedEmail && password == savedPassword);
+  static Future<bool> signUp(String name, String email, String pass) async {
+    return await _api.signUp(name, email, pass, pass); // [cite: 258]
   }
 
-  // Cek status login
-  static Future<bool> isLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyEmail) != null;
+  static Future<bool> signIn(String email, String pass) async {
+    final tokenStored = await _api.signIn(email, pass);
+    if (tokenStored) {
+      // Jika token berhasil disimpan, coba muat profil pengguna
+      return await loadUserProfile(); // Ini akan mengisi _currentUser
+    }
+    _currentUser = null; // Pastikan currentUser null jika sign-in gagal
+    return false;
   }
 
-  // Logout
   static Future<void> signOut() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyEmail);
-    await prefs.remove(_keyPassword);
+    await _api.signOut(); // Ini sudah menghapus token dari storage
+    _currentUser = null; // Bersihkan currentUser
+    debugPrint('User signed out, currentUser cleared.');
+  }
+
+
+  static Future<bool> isLoggedIn() async {
+    final token = await _api.getToken();
+    return token != null;
+  }
+
+  // Metode ini akan dipanggil oleh main.dart untuk memeriksa status login awal
+  static Future<bool> checkInitialLoginStatus() async {
+    return await loadUserProfile(); // Langsung coba muat profil user
   }
 }

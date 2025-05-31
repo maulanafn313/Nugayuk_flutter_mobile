@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'user/googlesignin.dart';
+// import 'user/googlesignin.dart';
 import 'signin.dart';
 import 'auth_service.dart';
 
@@ -15,8 +15,10 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   bool _obscurePassword = true;
   bool _agreedToTerms = false;
+  final TextEditingController nameController = TextEditingController(); // Tambah controller untuk nama
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordConfirmController = TextEditingController(); // Tambah controller untuk konfirmasi password
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               const SizedBox(height: 8),
               TextField(
+                controller: nameController, // Gunakan nameController
                 decoration: InputDecoration(
                   hintText: 'Enter your full name',
                   prefixIcon: const Icon(
@@ -53,7 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     color: Color(0xFF94A3B8),
                   ),
                   filled: true,
-                  fillColor: Color(0xFFBFDBFE),
+                  fillColor: const Color(0xFFBFDBFE),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide.none,
@@ -82,7 +85,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     color: Color(0xFF94A3B8),
                   ),
                   filled: true,
-                  fillColor: Color(0xFFBFDBFE),
+                  fillColor: const Color(0xFFBFDBFE),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide.none,
@@ -125,7 +128,37 @@ class _SignUpPageState extends State<SignUpPage> {
                     },
                   ),
                   filled: true,
-                  fillColor: Color(0xFFBFDBFE),
+                  fillColor: const Color(0xFFBFDBFE),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Password Confirmation Input
+              const Text(
+                'Confirm Password',
+                style: TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: passwordConfirmController,
+                obscureText: _obscurePassword, // Gunakan _obscurePassword yang sama
+                decoration: InputDecoration(
+                  hintText: 'Confirm your password',
+                  prefixIcon: const Icon(
+                    Icons.lock_outline,
+                    color: Color(0xFF94A3B8),
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xFFBFDBFE),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                     borderSide: BorderSide.none,
@@ -156,9 +189,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   Expanded(
                     child: RichText(
-                      text: TextSpan(
+                      text: const TextSpan(
                         text: 'I have read & agreed to DayTask ',
-                        style: const TextStyle(color: Color(0xFF94A3B8)),
+                        style: TextStyle(color: Color(0xFF94A3B8)),
                         children: [
                           TextSpan(
                             text: 'Privacy Policy',
@@ -181,27 +214,50 @@ class _SignUpPageState extends State<SignUpPage> {
               // Sign Up Button
               ElevatedButton(
                 onPressed: () async {
+                  final name = nameController.text.trim();
                   final email = emailController.text.trim();
                   final password = passwordController.text.trim();
+                  final passwordConfirm = passwordConfirmController.text.trim();
 
-                  if (email.isEmpty || password.isEmpty) {
+                  if (name.isEmpty || email.isEmpty || password.isEmpty || passwordConfirm.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Email dan password wajib diisi!'),
+                      const SnackBar(
+                        content: Text('Semua kolom wajib diisi!'),
                       ),
                     );
                     return;
                   }
 
-                  final success = await AuthService.signUp(email, password);
+                  if (password != passwordConfirm) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Konfirmasi password tidak cocok!'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (!_agreedToTerms) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Anda harus menyetujui Syarat & Ketentuan!'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  final success = await AuthService.signUp(name, email, password);
                   if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
+                    );
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => SignInPage()),
+                      MaterialPageRoute(builder: (context) => const SignInPage()),
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Email sudah terdaftar!')),
+                      const SnackBar(content: Text('Registrasi gagal. Email mungkin sudah terdaftar atau ada kesalahan server.')),
                     );
                   }
                 },
@@ -241,37 +297,37 @@ class _SignUpPageState extends State<SignUpPage> {
 
               const SizedBox(height: 24),
 
-              // Google Sign Up Button
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GoogleSignInPage(),
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  side: const BorderSide(color: Color(0xFF94A3B8)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset('images/google.png', height: 24),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Google',
-                      style: TextStyle(fontSize: 16, color: Colors.black87),
-                    ),
-                  ],
-                ),
-              ),
+              // Google Sign Up Button (Dihapus karena tidak diminta)
+              // OutlinedButton(
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => const GoogleSignInPage(),
+              //       ),
+              //     );
+              //   },
+              //   style: OutlinedButton.styleFrom(
+              //     minimumSize: const Size(double.infinity, 56),
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(16),
+              //     ),
+              //     side: const BorderSide(color: Color(0xFF94A3B8)),
+              //   ),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       Image.asset('images/google.png', height: 24),
+              //       const SizedBox(width: 12),
+              //       const Text(
+              //         'Google',
+              //         style: TextStyle(fontSize: 16, color: Colors.black87),
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
-              const SizedBox(height: 24),
+              // const SizedBox(height: 24),
 
               // Login Link
               Center(
@@ -285,9 +341,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     );
                   },
                   child: RichText(
-                    text: TextSpan(
+                    text: const TextSpan(
                       text: "Already have an account? ",
-                      style: const TextStyle(color: Color(0xFF94A3B8)),
+                      style: TextStyle(color: Color(0xFF94A3B8)),
                       children: [
                         TextSpan(
                           text: 'Log In',
@@ -310,8 +366,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   void dispose() {
+    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    passwordConfirmController.dispose();
     super.dispose();
   }
 }
