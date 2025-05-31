@@ -1,4 +1,4 @@
-// lib/models/user.dart
+
 class User {
   final int id; // Jika API mengembalikan ID
   final String name;
