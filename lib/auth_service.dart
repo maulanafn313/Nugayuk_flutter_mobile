@@ -1,5 +1,5 @@
 import './services/service.dart';
-import '../models/User.dart';
+import '../models/user.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService {

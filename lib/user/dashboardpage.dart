@@ -7,7 +7,7 @@ import 'create_schedule.dart';
 import 'view_schedule.dart';
 import 'notifications.dart';
 import 'calendar.dart';
-import '../models/User.dart';
+// import '../models/User.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
