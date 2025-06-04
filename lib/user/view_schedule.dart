@@ -72,7 +72,10 @@ class _ViewSchedulePageState extends State<ViewSchedulePage> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.title, color: Color(0xFF0A2472)),
+                                  const Icon(
+                                    Icons.title,
+                                    color: Color(0xFF0A2472),
+                                  ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
@@ -89,37 +92,61 @@ class _ViewSchedulePageState extends State<ViewSchedulePage> {
                               const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  const Icon(Icons.category, size: 18, color: Colors.black54),
+                                  const Icon(
+                                    Icons.category,
+                                    size: 18,
+                                    color: Colors.black54,
+                                  ),
                                   const SizedBox(width: 6),
                                   Text('Category: ${schedule.categoryName}'),
                                 ],
                               ),
                               Row(
                                 children: [
-                                  const Icon(Icons.flag, size: 18, color: Colors.black54),
+                                  const Icon(
+                                    Icons.flag,
+                                    size: 18,
+                                    color: Colors.black54,
+                                  ),
                                   const SizedBox(width: 6),
                                   Text('Priority: ${schedule.priority}'),
                                 ],
                               ),
                               Row(
                                 children: [
-                                  const Icon(Icons.info, size: 18, color: Colors.black54),
+                                  const Icon(
+                                    Icons.info,
+                                    size: 18,
+                                    color: Colors.black54,
+                                  ),
                                   const SizedBox(width: 6),
                                   Text('Status: ${schedule.status}'),
                                 ],
                               ),
                               Row(
                                 children: [
-                                  const Icon(Icons.calendar_today, size: 18, color: Colors.black54),
+                                  const Icon(
+                                    Icons.calendar_today,
+                                    size: 18,
+                                    color: Colors.black54,
+                                  ),
                                   const SizedBox(width: 6),
-                                  Text('Start: ${DateFormat('dd/MM/yyyy HH:mm').format(schedule.startSchedule)}'),
+                                  Text(
+                                    'Start: ${DateFormat('dd/MM/yyyy HH:mm').format(schedule.startSchedule)}',
+                                  ),
                                 ],
                               ),
                               Row(
                                 children: [
-                                  const Icon(Icons.event, size: 18, color: Colors.black54),
+                                  const Icon(
+                                    Icons.event,
+                                    size: 18,
+                                    color: Colors.black54,
+                                  ),
                                   const SizedBox(width: 6),
-                                  Text('Due: ${DateFormat('dd/MM/yyyy HH:mm').format(schedule.dueSchedule)}'),
+                                  Text(
+                                    'Due: ${DateFormat('dd/MM/yyyy HH:mm').format(schedule.dueSchedule)}',
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 12),
@@ -305,12 +332,15 @@ class _ViewSchedulePageState extends State<ViewSchedulePage> {
                 style: TextStyle(color: Colors.blue),
               ),
               onPressed: () async {
-                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop(); // Tutup dialog dulu
                 try {
                   await Provider.of<ScheduleProvider>(
                     parentContext,
                     listen: false,
-                  ).markScheduleAsDone(scheduleId, context);
+                  ).markScheduleAsDone(
+                    scheduleId,
+                    parentContext,
+                  ); // <-- gunakan parentContext
                   ScaffoldMessenger.of(parentContext).showSnackBar(
                     const SnackBar(content: Text('Schedule marked as done!')),
                   );
