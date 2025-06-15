@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   // Ganti dengan URL dasar API Laravel Anda
-  static const baseUrl = 'http://192.168.130.243:8000/api';
+  static const baseUrl = 'http://192.168.208.243:8000/api';
   final _storage = FlutterSecureStorage();
 
   // Getter untuk token

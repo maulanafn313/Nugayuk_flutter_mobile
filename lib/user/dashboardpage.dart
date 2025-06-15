@@ -5,6 +5,7 @@ import '../signin.dart';
 import 'schedule_provider.dart';
 import 'create_schedule.dart';
 import 'view_schedule.dart';
+import 'history_schedule.dart';
 import 'notifications.dart';
 import 'calendar.dart';
 // import '../models/User.dart';
@@ -25,7 +26,8 @@ class _DashboardPageState extends State<DashboardPage> {
     const _HomePageContent(), // Konten utama Dashboard
     const CalendarPage(),
     const CreateSchedulePage(), // Akan dinavigasi secara terpisah atau bisa juga di sini
-    const ViewSchedulePage(), // Menggunakan ViewSchedulePage sebagai "History" sementara
+    const ViewSchedulePage(),
+    const HistorySchedulePage(),
     const NotificationPage(),
   ];
 
@@ -68,7 +70,7 @@ class _DashboardPageState extends State<DashboardPage> {
         // Menggunakan ViewSchedulePage sebagai "History" sementara
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ViewSchedulePage()),
+          MaterialPageRoute(builder: (context) => const HistorySchedulePage()),
         );
         break;
       case 4:

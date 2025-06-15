@@ -6,6 +6,7 @@ import 'package:intl/intl.dart'; // For date formatting if needed for display
 import 'schedule_provider.dart';
 import '../models/schedule.dart'; // Your Schedule model
 import 'detail_schedule.dart'; // If you want to navigate to details
+import 'dashboardpage.dart'; // Assuming you have a DashboardPage to navigate back to
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -84,6 +85,17 @@ class _CalendarPageState extends State<CalendarPage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          color: const Color(0xFFFFFFFF), // Ensure back button is visible
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const DashboardPage()),
+              (route) => false,
+            );
+          },
+        ),
         title: const Text(
           'Calendar',
           style: TextStyle(

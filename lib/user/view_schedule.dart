@@ -47,7 +47,9 @@ class _ViewSchedulePageState extends State<ViewSchedulePage> {
           // Tambahkan RefreshIndicator
           onRefresh: () => scheduleProvider.loadSchedules(context),
           child:
-              scheduleProvider.schedules.isEmpty
+              scheduleProvider.schedules
+                      .where((schedule) => schedule.status != 'completed')
+                      .isEmpty
                   ? const Center(
                     child: Text(
                       'No schedules available',
@@ -55,9 +57,17 @@ class _ViewSchedulePageState extends State<ViewSchedulePage> {
                     ),
                   )
                   : ListView.builder(
-                    itemCount: scheduleProvider.schedules.length,
+                    itemCount:
+                        scheduleProvider.schedules
+                            .where((schedule) => schedule.status != 'completed')
+                            .length,
                     itemBuilder: (context, index) {
-                      final schedule = scheduleProvider.schedules[index];
+                      final schedule =
+                          scheduleProvider.schedules
+                              .where(
+                                (schedule) => schedule.status != 'completed',
+                              )
+                              .toList()[index];
                       return Card(
                         color: const Color(0xFFB3E0FB), // Warna biru muda
                         margin: const EdgeInsets.symmetric(vertical: 8),

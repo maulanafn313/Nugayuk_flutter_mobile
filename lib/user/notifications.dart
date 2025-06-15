@@ -5,6 +5,7 @@ import 'package:intl/intl.dart'; // For formatting time
 import 'notification_provider.dart'; // Your NotificationProvider
 import '../models/notificationmodel.dart'; // Your NotificationMessage model
 import '../auth_service.dart'; // To get current user for avatar initials
+import 'dashboardpage.dart'; // Assuming you have a DashboardPage to navigate back to
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
@@ -50,6 +51,17 @@ class NotificationPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          color: const Color(0xFF0A2472),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const DashboardPage()),
+              (route) => false,
+            );
+          },
+        ),
         title: const Text(
           'Notifications',
           style: TextStyle(
